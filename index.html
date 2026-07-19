@@ -1,0 +1,78 @@
+<div style="font-family: system-ui, sans-serif; padding: 16px; color: #111;">
+  <h1 style="margin: 0 0 4px; font-size: 20px;">井字棋</h1>
+  <p style="margin: 0 0 10px; color: #666; font-size: 13px;">
+    你执 <b id="mark">…</b> · <span id="status"></span>
+  </p>
+
+  <div id="board"
+       style="display:grid; grid-template-columns:repeat(3,64px); gap:4px;">
+  </div>
+
+  <button id="restart" style="margin-top:12px; display:none;">再来一局</button>
+
+  <script>
+    const boardEl = document.getElementById('board');
+    const markEl = document.getElementById('mark');
+    const statusEl = document.getElementById('status');
+    const restartEl = document.getElementById('restart');
+
+    // 创建 9 个格子按钮
+    const cells = [];
+    for (let i = 0; i < 9; i++) {
+      const b = document.createElement('button');
+      b.style.cssText =
+        'width:64px;height:64px;font-size:28px;font-weight:700;cursor:pointer;';
+      b.onclick = () => parti.action('mark', { cell: i });
+      cells.push(b);
+      boardEl.appendChild(b);
+    }
+
+    let myMark = null;
+
+    // 私密事件：开局时 Runtime 通过 send 告诉我执什么子
+    parti.onEvent('seat:assigned', (p) => {
+      myMark = p.mark;
+      markEl.textContent = myMark || '观众';
+    });
+
+    // 一次性结果事件
+    parti.onEvent('game:over', (p) => {
+      parti.log('game over', p.winner);
+    });
+
+    // 状态驱动：每次 state 变化整体重渲染
+    parti.onState((state) => {
+      state.board.forEach((v, i) => {
+        cells[i].textContent = v || '';
+        cells[i].disabled = v !== null || state.phase !== 'playing';
+        const win = state.winLine && state.winLine.includes(i);
+        cells[i].style.background = win ? '#d8f5e0' : '';
+      });
+
+      // 兜底：万一错过了 seat:assigned 事件，从 state 里补读自己的 mark
+      if (!myMark && state.players[parti.playerId]) {
+        myMark = state.players[parti.playerId].mark;
+        markEl.textContent = myMark || '观众';
+      }
+
+      if (state.phase === 'waiting') {
+        statusEl.textContent = '等待对手加入…';
+      } else if (state.phase === 'playing') {
+        statusEl.textContent =
+          state.turn === myMark ? '轮到你了' : '等待对方落子…';
+      } else {
+        statusEl.textContent =
+          state.winner === 'draw'
+            ? '平局'
+            : (state.winner === myMark ? '🎉 你赢了！' : '你输了');
+      }
+
+      restartEl.style.display = state.phase === 'finished' ? '' : 'none';
+    });
+
+    restartEl.onclick = () => parti.action('restart');
+
+    // 入场即就绪
+    parti.ready();
+  </script>
+</div>
