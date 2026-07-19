@@ -1,0 +1,17 @@
+{
+  "partiVersion": "0.1.0",
+  "protocolVersion": 1,
+  "id": "tic-tac-toe",
+  "name": "井字棋",
+  "version": "1.0.0",
+  "packageMode": "blob",
+  "description": "经典双人井字棋：前两位玩家执 X / O，轮流落子，连成一线获胜，支持重开。",
+  "author": { "name": "glink25" },
+  "entry": {
+    "ui": "index.html",
+    "worker": "room.worker.js"
+  },
+  "room": { "minPlayers": 2, "maxPlayers": 2 },
+  "sync": { "mode": "snapshot" },
+  "permissions": { "network": false, "storage": "session" }
+}
