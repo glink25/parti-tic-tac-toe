@@ -18,3 +18,5 @@
 登记 issue：`[parti-room] glink25/parti-tic-tac-toe`（见 glink25/Parti issue 区）
 
 发布规范详见 Parti 文档 [room-market.md](https://github.com/glink25/Parti/blob/main/docs/room-market.md)。
+
+自动触发
